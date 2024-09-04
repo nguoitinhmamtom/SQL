@@ -38,4 +38,7 @@ select name , population , area from World where area >= 3000000 or population >
 --bai12
 select distinct author_id as "id" from Views where author_id = viewer_id order by id
 --bai13
+SELECT part, assembly_step FROM parts_assembly WHERE finish_date IS NULL
+--bai14
+select * from lyft_drivers where yearly_salary <= 30000 or yearly_salary >= 70000
   
