@@ -33,3 +33,19 @@ select tweet_id
 from tweets
 where length(content) >=15
 --7
+select count(distinct(user_id)) as active_users ,
+activity_date as day
+from activity
+where (activity_date between '2019-06-28' and '2019-07-27')
+group by activity_date
+--8
+select 
+count(id) as employees_id
+from employees
+where (extract(month from joining_date) between 1 and 7)
+and extract(month from joining_date) = 2022
+--9
+select position( 'a' in first_name) from worker where first_name = 'Amitah'
+--10
+select substring(title, length(winery)+2,4) from winemag_p2
+where country = 'Macedonia'
