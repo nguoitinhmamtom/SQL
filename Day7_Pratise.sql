@@ -29,3 +29,7 @@ group by EXTRACT(month from submit_date)
 ,product_id
 order by mth, product_id
 --6
+select tweet_id
+from tweets
+where length(content) >=15
+--7
