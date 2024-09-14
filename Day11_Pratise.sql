@@ -45,3 +45,8 @@ ON a.product_id=b.product_id AND b.order_date BETWEEN '2020-02-01' AND '2020-02-
 GROUP BY b.product_id
 HAVING unit>=100
 --7
+LECT a.page_id
+FROM pages AS a  
+LEFT JOIN page_likes AS b  
+ON a.page_id=b.page_id 
+WHERE b.page_id IS NULL
