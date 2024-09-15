@@ -50,7 +50,9 @@ FROM pages AS a
 LEFT JOIN page_likes AS b  
 ON a.page_id=b.page_id 
 WHERE b.page_id IS NULL
-Mid-course test
+	
+###Mid-course test
+	
 --1
 select distinct(replacement_cost)
 from film
@@ -87,4 +89,22 @@ inner join actor as b
 on a.actor_id=b.actor_id
 group by b.first_name, b.last_name
 order by so_luong desc
+--6
+select a.address, b.customer_id
+from public.address as a
+left join public.customer as b
+on a.address_id=b.address_id
+where b.customer_id is null;
+--7
+select sum(a.amount), d.city
+from payment as a
+inner join public.customer as b
+on a.customer_id=b.customer_id
+inner join public.address as c
+on b.address_id=c.address_id
+inner join public.city as d
+on c.city_id=d.city_id
+group by d.city
+order by sum(a.amount) desc;
+--8
 
