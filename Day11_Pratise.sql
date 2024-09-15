@@ -50,3 +50,41 @@ FROM pages AS a
 LEFT JOIN page_likes AS b  
 ON a.page_id=b.page_id 
 WHERE b.page_id IS NULL
+Mid-course test
+--1
+select distinct(replacement_cost)
+from film
+order by replacement_cost;
+--2
+select count(film_id),
+case 
+	when replacement_cost between '9.99' and '19.99' then 'low' 
+	when replacement_cost between '20.00' and '24.99' then 'medium'
+	when replacement_cost between '25.00' and '29.99' then 'high'
+end a
+from film
+group by a
+--3
+select c.title, c.length, cast(a.name as varchar) as category_name
+from public.category as a
+inner join public.film_category as b
+on a.category_id=b.category_id
+inner join public.film as c
+on b.film_id=c.film_id and a.name in ('Drama','Sports')
+order by category_name desc;
+--4
+select count(c.title) as so_luong,a.name
+from public.category as a
+inner join public.film_category as b
+on a.category_id=b.category_id
+inner join public.film as c
+on b.film_id=c.film_id 
+group by a.name
+--5
+select b.first_name, b.last_name, count(a.film_id) as so_luong
+from film_actor as a
+inner join actor as b
+on a.actor_id=b.actor_id
+group by b.first_name, b.last_name
+order by so_luong desc
+
