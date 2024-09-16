@@ -107,4 +107,15 @@ on c.city_id=d.city_id
 group by d.city
 order by sum(a.amount) desc;
 --8
-
+select sum(a.amount) as total, d.city || ',' || ' ' || e.country as col1
+from payment as a
+inner join customer as b
+on a.customer_id=b.customer_id
+inner join address as c 
+on c.address_id=b.address_id
+inner join city as d
+on d.city_id=c.city_id
+inner join country as e
+on e.country_id=d.country_id
+group by col1
+order by total
