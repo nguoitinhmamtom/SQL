@@ -88,4 +88,26 @@ where user_id in (select distinct(user_id) from user_actions where extract(year 
 and extract(year from event_date)= 2022 and  extract(month from event_date)=7
 group by mth
 --6
+select left(trans_date,7) as month, country, count(id) as trans_count, 
+count(case when state = 'approved' then state else null end) as approved_count, sum(amount) as trans_total_amount, 
+sum(case when state ='approved' then amount else 0 end) as approved_total_amount 
+from transactions 
+group by left(trans_date, 7), country;
+--7
+with a as 
+(select min(year) as min_year,product_id from sales group by product_id)
+select b.product_id, b.year as first_year, b.quantity, b.price 
+from Sales b
+inner join a 
+on a.product_id=b.product_id and a.min_year=b.year
+--8
+select customer_id
+from customer
+group by customer_id
+having count(distinct product_key) = (select count(product_key) from product)
+--9
+select employee_id from Employees
+where salary < 30000 and not manager_id in (select employee_id from Employees)
+order by employee_id
+--10
 
