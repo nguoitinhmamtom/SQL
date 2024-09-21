@@ -38,7 +38,9 @@ FROM a
 SELECT a.page_id
 FROM pages AS a  
 LEFT JOIN page_likes AS b  
-ON a.page_id=b.page_id;
+ON a.page_id=b.page_id
+WHERE b.page_id IS NULL
+ORDER BY page_id;
 --4.1
 SELECT page_id 
 FROM pages
@@ -46,7 +48,44 @@ WHERE NOT page_id IN (SELECT DISTINCT(page_id)
 FROM page_likes)
 ORDER BY page_id;
 --5
+WITH a AS
+(SELECT month AS current_month,(user_id) AS current_users 
+FROM user_actions
+WHERE EXTRACT(year FROM event_date) = 2022 
+AND EXTRACT(month FROM event_date) = 7
+GROUP BY user_id,month),
+b AS 
+(SELECT month AS last_month,(user_id) AS last_users 
+FROM user_actions
+WHERE EXTRACT(year FROM event_date) = 2022 
+AND EXTRACT(month FROM event_date) = 6
+GROUP BY user_id,month), 
+c AS 
+(SELECT a.current_month,a.current_users FROM a 
+LEFT JOIN b  
+ON a.current_users=b.last_users
+WHERE b.last_users IS NOT NULL)
+SELECT current_month AS mth, COUNT(current_users) AS monthly_active_user
+FROM c  
+GROUP BY mth
+--5.1
+SELECT
+ EXTRACT(month from event_date) AS mth,
+ COUNT(DISTINCT(user_id)) AS monthly_active_user
+FROM user_actions 
+WHERE user_id IN (
+  SELECT 
+  	DISTINCT(user_id)
+  FROM user_actions
+  WHERE EXTRACT(month from event_date) = 6 AND EXTRACT(year from event_date) = 2022
+  )
+AND EXTRACT(month from event_date) = 7 AND EXTRACT(year from event_date) = 2022
+GROUP BY mth
+--5.2
+select extract(month from event_date) as mth, count(distinct(user_id)) as monthly_active_users
+from user_actions
+where user_id in (select distinct(user_id) from user_actions where extract(year from event_date)= 2022 and  extract(month from event_date)=6)
+and extract(year from event_date)= 2022 and  extract(month from event_date)=7
+group by mth
+--6
 
-WHERE b.page_id IS NULL
-ORDER BY page_id
---4
