@@ -110,4 +110,32 @@ select employee_id from Employees
 where salary < 30000 and not manager_id in (select employee_id from Employees)
 order by employee_id
 --10
-
+with a as 
+(select company_id,title,count(company_id) as cnt
+from job_listings 
+group by company_id,title
+having count(company_id)>1)
+select count(*) from a
+--11
+(select users.name as results from users
+inner join movierating on users.user_id=movierating.user_id
+group by users.user_id
+order by count(movierating.movie_id) desc,users.name limit 1)
+union
+(select movies.title as results from movies 
+inner join movierating on movies.movie_id=movierating.movie_id
+where extract(year from movierating.created_at) = 2020 and extract(month from movierating.created_at) = 2
+group by movies.movie_id
+order by avg(movierating.rating) desc, movies.title limit 1)
+--12
+WITH CTE AS
+ (SELECT requester_id id
+FROM RequestAccepted
+UNION ALL
+SELECT accepter_id id
+FROM RequestAccepted)
+SELECT id, count(id) num
+FROM CTE
+group by id
+ORDER BY count(id) DESC
+LIMIT 1
