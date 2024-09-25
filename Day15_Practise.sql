@@ -26,7 +26,7 @@ SELECT transaction_date,user_id, purchase_count
 FROM cte
 WHERE rank1 = 1
 ORDER BY transaction_date 
---5
+--5 bài này e tra tính moving average ý, chứ em làm theo lag ko ra được
 SELECT  user_id,tweet_date, 
 ROUND(AVG(tweet_count) OVER(PARTITION BY user_id ORDER BY tweet_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),2) AS rolling_avg_3d
 FROM tweets;
