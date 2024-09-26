@@ -40,7 +40,15 @@ SELECT COUNT(merchant_id) AS payment_count
 FROM cte  
 WHERE (EXTRACT(HOUR FROM diff)*60+EXTRACT(minute FROM diff) <= 10
 --7
-  
+WITH cte AS
+(SELECT category,product,SUM(spend) AS total_spend,
+DENSE_RANK() OVER(PARTITION BY category ORDER BY SUM(spend) DESC) AS rank1
+FROM product_spend
+WHERE EXTRACT(year FROM transaction_date) = 2022
+GROUP BY category,product)
+SELECT category,product,total_spend
+FROM cte 
+WHERE rank1 < 3
 --8
 WITH cte AS 
 (SELECT a.artist_name AS artist_name,
