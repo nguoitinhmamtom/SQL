@@ -40,6 +40,8 @@ SELECT COUNT(merchant_id) AS payment_count
 FROM cte  
 WHERE (EXTRACT(HOUR FROM diff)*60+EXTRACT(minute FROM diff) <= 10
 --7
+  
+--8
 WITH cte AS 
 (SELECT a.artist_name AS artist_name,
 DENSE_RANK() OVER(ORDER BY COUNT(c.song_id) DESC) AS artist_rank
