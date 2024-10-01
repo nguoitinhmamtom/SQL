@@ -61,3 +61,29 @@ GROUP BY a.artist_name)
 SELECT *
 FROM cte 
 WHERE artist_rank < 6
+#####
+--1
+WITH cte AS (
+    SELECT customer_id,
+CASE 
+    WHEN order_date = customer_pref_delivery_date THEN 'immediate'
+    WHEN order_date <> customer_pref_delivery_date THEN 'scheduled'
+END kind_of_the_order,
+RANK() OVER(PARTITION BY customer_id ORDER BY order_date) AS rank1
+FROM Delivery)
+SELECT ROUND(COUNT(kind_of_the_order)/(SELECT COUNT(kind_of_the_order) FROM cte WHERE rank1 = 1)*100,2) AS immediate_percentage
+FROM cte
+WHERE kind_of_the_order = 'immediate'AND rank1 = 1
+--2 em dùng LEAD() - event_date ko ra, nếu như ngày ở LEAD() < ngày ở event_date và khác tháng thì chênh lệch số này hơn 50, nên em dùng DATEDIFF
+WITH cte1 AS (
+SELECT player_id, event_date,
+LEAD(event_date) OVER(PARTITION BY player_id ORDER BY event_date) AS next_day
+FROM Activity),
+cte2 AS (SELECT player_id,MIN(event_date) AS first_day FROM Activity GROUP BY player_id)
+SELECT ROUND(COUNT(DISTINCT cte1.player_id)/(SELECT COUNT(DISTINCT player_id) FROM Activity),2) AS fraction 
+FROM cte1 
+INNER JOIN cte2 ON cte1.player_id=cte2.player_id
+WHERE (cte1.player_id,cte1.event_date)=(cte2.player_id,cte2.first_day) AND 
+DATEDIFF(cte1.next_day, cte1.event_date) = 1
+--3
+
