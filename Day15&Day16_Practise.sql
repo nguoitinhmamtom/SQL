@@ -85,7 +85,7 @@ FROM cte1
 INNER JOIN cte2 ON cte1.player_id=cte2.player_id
 WHERE (cte1.player_id,cte1.event_date)=(cte2.player_id,cte2.first_day) AND 
 DATEDIFF(cte1.next_day, cte1.event_date) = 1
---3 mình ko dùng subquery ở lệnh case when ạ, em muốn rút ngắn code bằng cách thêm lệnh and id not in (select max(id) from seat) nhưng ko được 
+--3 mình ko dùng subquery ở lệnh case when ạ, em muốn rút ngắn code bằng cách thêm lệnh id not in (select max(id) from seat) nhưng ko được 
 WITH cte AS(
 SELECT id,
 CASE
@@ -96,4 +96,13 @@ FROM seat)
 SELECT cte.id, COALESCE(cte.student,seat.student) AS student 
 FROM seat
 INNER JOIN cte on cte.id=seat.id
+--3.1 
+SELECT 
+CASE
+    WHEN id % 2 <> 0 AND id = (SELECT COUNT(*) FROM Seat) THEN id
+    WHEN id % 2 = 0 THEN id - 1
+    ELSE id + 1
+END id, student
+FROM Seat 
+ORDER BY id
 --4 
