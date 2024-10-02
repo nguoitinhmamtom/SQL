@@ -30,6 +30,20 @@ ORDER BY transaction_date
 SELECT  user_id,tweet_date, 
 ROUND(AVG(tweet_count) OVER(PARTITION BY user_id ORDER BY tweet_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),2) AS rolling_avg_3d
 FROM tweets;
+--5.1
+WITH cte AS
+(SELECT user_id,tweet_date,tweet_count,
+COALESCE(LAG(tweet_count) OVER(PARTITION BY user_id ORDER BY tweet_date),'0') AS LAG1,
+COALESCE(LAG(tweet_count,2) OVER(PARTITION BY user_id ORDER BY tweet_date),'0') AS LAG2,
+RANK() OVER(PARTITION BY user_id ORDER BY tweet_date) AS rank1
+FROM tweets)
+SELECT user_id,tweet_date,
+CASE
+  WHEN rank1 = 1 THEN ROUND(tweet_count/1,2)
+  WHEN rank1 = 2 THEN ROUND((tweet_count+LAG1)/2.00 ,2)
+  ELSE ROUND((tweet_count+LAG1+LAG2)/3.00 ,2)
+END rolling_avg_3d
+FROM cte
 --6
 WITH cte AS (
 SELECT *, 
