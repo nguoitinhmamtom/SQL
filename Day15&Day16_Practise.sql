@@ -132,4 +132,21 @@ SELECT visited_on, amount, average_amount
 FROM cte
 WHERE rank1>6
 --5
+WITH cte AS(
+SELECT pid, tiv_2015,tiv_2016, COUNT(tiv_2015) OVER(PARTITION BY tiv_2015) AS num,
+COUNT(CONCAT(lat,lon)) OVER(PARTITION BY CONCAT(lat,lon)) AS location
+FROM Insurance)
+SELECT ROUND(SUM(tiv_2016),2) AS tiv_2016
+FROM cte
+WHERE num > 1 AND location = 1 
+--6
+WITH cte AS 
+(SELECT b.name AS Department,a.name AS Employee,a.salary AS Salary,
+DENSE_RANK() OVER(PARTITION BY b.name ORDER BY a.salary DESC) AS rank1
+FROM Employee AS a
+INNER JOIN Department AS b ON a.departmentId=b.id)
+SELECT Department,Employee,Salary
+FROM cte
+WHERE rank1 < 4
+--7
 
