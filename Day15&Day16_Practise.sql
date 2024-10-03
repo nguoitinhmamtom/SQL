@@ -149,4 +149,11 @@ SELECT Department,Employee,Salary
 FROM cte
 WHERE rank1 < 4
 --7
+SELECT person_name
+FROM (SELECT person_name , SUM(Weight) OVER(ORDER BY Turn) AS total_weight
+FROM Queue) AS a
+WHERE total_weight<=1000
+ORDER BY total_weight DESC
+LIMIT 1
+--8
 
