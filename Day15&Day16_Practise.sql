@@ -119,4 +119,17 @@ CASE
 END id, student
 FROM Seat 
 ORDER BY id
---4 
+--4 em dùng hàm ALG như buổi trước tính ko ra nên e dùng lại hàm ROWS BETWEEN
+WITH cte AS (
+SELECT visited_on, SUM(amount) OVER(ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS amount, 
+ROUND(AVG(amount) OVER(ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),2) AS average_amount,
+RANK() OVER(ORDER BY visited_on) AS rank1
+FROM (SELECT visited_on, SUM(amount) AS amount
+FROM customer
+GROUP BY visited_on) AS a
+)
+SELECT visited_on, amount, average_amount
+FROM cte
+WHERE rank1>6
+--5
+
