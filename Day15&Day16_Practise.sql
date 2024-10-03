@@ -119,7 +119,7 @@ CASE
 END id, student
 FROM Seat 
 ORDER BY id
---4 em dùng hàm LAG như buổi trước tính ko ra nên e dùng lại hàm ROWS BETWEEN
+--4
 WITH cte AS (
 SELECT visited_on, SUM(amount) OVER(ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS amount, 
 ROUND(AVG(amount) OVER(ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),2) AS average_amount,
@@ -130,6 +130,42 @@ GROUP BY visited_on) AS a)
 SELECT visited_on, amount, average_amount
 FROM cte
 WHERE rank1>6
+--4.1
+WITH cte AS(
+SELECT visited_on,amount,
+COALESCE(LAG(amount,1) OVER(ORDER BY visited_on),'0') AS LAG1,
+COALESCE(LAG(amount,2) OVER(ORDER BY visited_on),'0') AS LAG2,
+COALESCE(LAG(amount,3) OVER(ORDER BY visited_on),'0') AS LAG3,
+COALESCE(LAG(amount,4) OVER(ORDER BY visited_on),'0') AS LAG4,
+COALESCE(LAG(amount,5) OVER(ORDER BY visited_on),'0') AS LAG5,
+COALESCE(LAG(amount,6) OVER(ORDER BY visited_on),'0') AS LAG6,
+RANK() OVER(ORDER BY visited_on) AS rank1
+FROM
+(SELECT visited_on, SUM(amount) AS amount
+FROM customer
+GROUP BY visited_on) AS a)
+
+SELECT visited_on,
+CASE 
+    WHEN rank1=1 THEN ROUND(amount,2)
+    WHEN rank1=2 THEN ROUND(amount+LAG1,2)
+    WHEN rank1=3 THEN ROUND(amount+LAG1+LAG2,2)
+    WHEN rank1=4 THEN ROUND(amount+LAG1+LAG2+LAG3,2)
+    WHEN rank1=5 THEN ROUND(amount+LAG1+LAG2+LAG3+LAG4,2)
+    WHEN rank1=6 THEN ROUND(amount+LAG1+LAG2+LAG3+LAG4+LAG5,2)
+    ELSE ROUND(amount+LAG1+LAG2+LAG3+LAG4+LAG5+LAG6,2)
+END amount,
+CASE 
+    WHEN rank1=1 THEN ROUND(amount,2)
+    WHEN rank1=2 THEN ROUND((amount+LAG1)/2,2)
+    WHEN rank1=3 THEN ROUND((amount+LAG1+LAG2)/3,2)
+    WHEN rank1=4 THEN ROUND((amount+LAG1+LAG2+LAG3)/4,2)
+    WHEN rank1=5 THEN ROUND((amount+LAG1+LAG2+LAG3+LAG4)/5,2)
+    WHEN rank1=6 THEN ROUND((amount+LAG1+LAG2+LAG3+LAG4+LAG5)/6,2)
+    ELSE ROUND((amount+LAG1+LAG2+LAG3+LAG4+LAG5+LAG6)/7,2)
+END average_amount
+FROM cte
+WHERE rank1 > 6
 --5
 WITH cte AS(
 SELECT pid, tiv_2015,tiv_2016, COUNT(tiv_2015) OVER(PARTITION BY tiv_2015) AS num,
@@ -164,3 +200,5 @@ SELECT product_id, 10 AS price
 FROM Products
 GROUP BY product_id
 HAVING MIN(change_date) > '2019-08-16'
+
+câu 2 với câu 8 em đọc đề phát hoảng ý, tại code mãi ko ra :<<
