@@ -99,7 +99,7 @@ FROM cte1
 INNER JOIN cte2 ON cte1.player_id=cte2.player_id
 WHERE (cte1.player_id,cte1.event_date)=(cte2.player_id,cte2.first_day) AND 
 DATEDIFF(cte1.next_day, cte1.event_date) = 1
---3 mình ko dùng subquery ở lệnh case when ạ, em muốn rút ngắn code bằng cách thêm lệnh id not in (select max(id) from seat) nhưng ko được 
+--3  
 WITH cte AS(
 SELECT id,
 CASE
@@ -119,15 +119,14 @@ CASE
 END id, student
 FROM Seat 
 ORDER BY id
---4 em dùng hàm ALG như buổi trước tính ko ra nên e dùng lại hàm ROWS BETWEEN
+--4 em dùng hàm LAG như buổi trước tính ko ra nên e dùng lại hàm ROWS BETWEEN
 WITH cte AS (
 SELECT visited_on, SUM(amount) OVER(ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS amount, 
 ROUND(AVG(amount) OVER(ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),2) AS average_amount,
 RANK() OVER(ORDER BY visited_on) AS rank1
 FROM (SELECT visited_on, SUM(amount) AS amount
 FROM customer
-GROUP BY visited_on) AS a
-)
+GROUP BY visited_on) AS a)
 SELECT visited_on, amount, average_amount
 FROM cte
 WHERE rank1>6
