@@ -67,6 +67,7 @@ where abs((quantityordered-avg)/stddev)<=2
 để z-score <=2 dữ liệu vẫn đảm bảo số lượng mẫu để thực hiện các kiểm định phân tích, lúc này mẫu đc lấy với đk chặt chẽ hơn, và 
 đảm bảo cỡ mẫu > 2000 => lấy điều kiện z-score <=2, loại bỏ các giá trị > 2 và lưu ở table mới SALES_DATASET_RFM_PRJ_CLEAN
 6.Sau khi làm sạch dữ liệu, hãy lưu vào bảng mới  tên là SALES_DATASET_RFM_PRJ_CLEAN
+
 with cte as(
 select *,(select avg(quantityordered) from public.sales_dataset_rfm_prj) as avg,
 (select stddev(quantityordered) from public.sales_dataset_rfm_prj) as stddev
