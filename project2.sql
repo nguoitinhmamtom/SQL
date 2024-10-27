@@ -84,5 +84,15 @@ thị trường chấp nhận, dù bình thường khách hàng mục tiêu mà 
 ra một thị trường mới, có thể là một danh mục mới, thậm chí là phát triển một sàn tmđt mới dành riêng cbo khách hàng có nhóm tuổi như trên.
 */
 4.
-  
+with cte as (select a.*, format_date('%Y-%m', a.created_at) as month_year
+,b.cost,b.name as product_name
+from bigquery-public-data.thelook_ecommerce.order_items a
+join bigquery-public-data.thelook_ecommerce.products b
+on a.product_id=b.id),
+cte1 as (select month_year, product_id, product_name, sale_price as sale, cost, sum(sale_price) - sum(cost) as profit
+from cte
+group by month_year, product_id, product_name, sale_price,cost)
+select * from (select *, dense_rank() over(partition by month_year order by profit desc) as rank_per_month from cte1) as a
+where rank_per_month <= 5
+order by month_year
 https://docs.google.com/spreadsheets/d/1_l0GUawirlfubumpRY83oyjUB6LxRr218sgM646i8ic/edit?usp=sharing
