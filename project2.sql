@@ -106,3 +106,5 @@ select dates,product_categories,sum(tr) over(partition by product_categories ord
 from cte 
 where date_diff('2022-04-15', CAST(dates AS DATE), month) between 0 and 3
 
+em đưa ra nhận xét theo những gì em tìm hiểu về bối cảnh của thị trường trong thời gian yêu cầu lấy dữ liệu, em chưa tìm hiểu sâu doanh nghiệp, 
+vì thế nhận xét của em phiến diện chưa đúng với doanh nghiệp.
