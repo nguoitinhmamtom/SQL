@@ -95,4 +95,14 @@ group by month_year, product_id, product_name, sale_price,cost)
 select * from (select *, dense_rank() over(partition by month_year order by profit desc) as rank_per_month from cte1) as a
 where rank_per_month <= 5
 order by month_year
-https://docs.google.com/spreadsheets/d/1_l0GUawirlfubumpRY83oyjUB6LxRr218sgM646i8ic/edit?usp=sharing
+5.
+with cte as
+(select format_date('%Y-%m-%d',a1.created_at) as dates, b1.category as product_categories, sum(a1.sale_price) as tr
+from bigquery-public-data.thelook_ecommerce.order_items as a1
+join bigquery-public-data.thelook_ecommerce.products as b1
+on a1.product_id = b1.id
+group by dates,product_categories)
+select dates,product_categories,sum(tr) over(partition by product_categories order by dates) as revenue
+from cte 
+where date_diff('2022-04-15', CAST(dates AS DATE), month) between 0 and 3
+
