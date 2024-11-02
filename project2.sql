@@ -106,5 +106,24 @@ select dates,product_categories,sum(tr) over(partition by product_categories ord
 from cte 
 where date_diff('2022-04-15', CAST(dates AS DATE), month) between 0 and 3
 
-em đưa ra nhận xét theo những gì em tìm hiểu về bối cảnh của thị trường trong thời gian yêu cầu lấy dữ liệu, em chưa tìm hiểu sâu doanh nghiệp, 
-vì thế nhận xét của em phiến diện chưa đúng với doanh nghiệp.
+project 2.2
+
+create view thelook_ecommerce.vw_ecommerce_analyst as (
+with cte1 as 
+(select format_date('%m',a1.created_at) as Month,format_date('%Y',a1.created_at) as Year, b1.category as Product_category, 
+sum(a1.sale_price) as TPV, 
+count(a1.order_id) as TPO,
+sum(b1.cost) as Total_cost
+from bigquery-public-data.thelook_ecommerce.order_items as a1
+join bigquery-public-data.thelook_ecommerce.products as b1
+on a1.product_id = b1.id
+group by 3,2,1)
+select Month,Year,Product_category,
+TPV,TPO,
+100*(TPV-lag(TPV) over(partition by Product_category order by Year,Month))/lag(TPV) over(partition by Product_category order by Year,Month) as revenue_growth,
+100*(TPO-lag(TPO) over(partition by Product_category order by Year,Month))/lag(TPO) over(partition by Product_category order by Year,Month) as order_growth,
+total_cost,
+sum(TPV) over(partition by Product_category,Year,Month)-total_cost as total_profit,
+(sum(TPV) over(partition by Product_category,Year,Month)-total_cost)/total_cost as profit_to_cost_ratio
+from cte1
+order by Product_category,Year,Month)
