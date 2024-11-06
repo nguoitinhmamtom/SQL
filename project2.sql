@@ -107,7 +107,7 @@ from cte
 where date_diff('2022-04-15', CAST(dates AS DATE), month) between 0 and 3
 
 project 2.2
-
+1.
 create view thelook_ecommerce.vw_ecommerce_analyst as (
 with cte1 as 
 (select format_date('%m',a1.created_at) as Month,format_date('%Y',a1.created_at) as Year, b1.category as Product_category, 
@@ -127,3 +127,26 @@ sum(TPV) over(partition by Product_category,Year,Month)-total_cost as total_prof
 (sum(TPV) over(partition by Product_category,Year,Month)-total_cost)/total_cost as profit_to_cost_ratio
 from cte1
 order by Product_category,Year,Month)
+2.
+with cte as 
+(select a.user_id,a.order_id,cast(sum(b.sale_price) over(partition by b.user_id,b.order_id ) as numeric) as amount, a.created_at
+from bigquery-public-data.thelook_ecommerce.orders as a
+join bigquery-public-data.thelook_ecommerce.order_items as b
+on a.user_id=b.user_id and a.order_id=b.order_id),
+cleaned_data as 
+(select * from (select *,row_number() over(partition by user_id,order_id,amount order by created_at) as stt
+from cte
+order by created_at) as a
+where stt = 1),
+final as
+(select user_id,amount,format_date('%Y-%m',first_purchase_date) as cohort_date,
+(extract(year from created_at)-extract(year from first_purchase_date))*12+(extract(month from created_at)-extract(month from first_purchase_date)) as index
+from (select user_id,amount,order_id,
+min(created_at) over(partition by user_id) as first_purchase_date,
+created_at
+from cleaned_data) as b)
+select cohort_date,index,count(distinct user_id) as cnt,sum(amount) as revenue
+from final
+where index < 4
+group by cohort_date,index
+order by cohort_date,index
